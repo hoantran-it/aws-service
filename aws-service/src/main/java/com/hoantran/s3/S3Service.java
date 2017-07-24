@@ -6,6 +6,8 @@
  */
 package com.hoantran.s3;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +25,8 @@ import com.amazonaws.auth.profile.ProfileCredentialsProvider;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.amazonaws.services.s3.model.CopyObjectRequest;
+import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.ListObjectsV2Request;
 import com.amazonaws.services.s3.model.ListObjectsV2Result;
@@ -33,11 +37,11 @@ import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.amazonaws.services.s3.transfer.TransferManager;
 import com.amazonaws.services.s3.transfer.TransferManagerBuilder;
 import com.amazonaws.services.s3.transfer.Upload;
+import com.amazonaws.util.IOUtils;
 import com.amazonaws.util.StringUtils;
 
 /**
  * @author hoan.tran
- *
  */
 public class S3Service {
 
@@ -118,55 +122,131 @@ public class S3Service {
             } while (result.isTruncated());
 
         } catch (AmazonServiceException ase) {
-            LOGGER.warn("Caught an AmazonServiceException, which means your request made it to Amazon S3, but was rejected with an error response for some reason.");
-            LOGGER.warn("Error Message: {}", ase.getMessage());
-            LOGGER.warn("HTTP Status Code: {}", ase.getStatusCode());
-            LOGGER.warn("AWS Error Code: {}", ase.getErrorCode());
-            LOGGER.warn("Error Type: {}", ase.getErrorType());
-            LOGGER.warn("Request ID: {}", ase.getRequestId());
+            logError(ase);
         } catch (AmazonClientException ace) {
-            LOGGER.warn("Caught an AmazonClientException, which means the client encountered an internal error while trying to communicate with S3, such as not being able to access the network.");
-            LOGGER.warn("Error Message: {}", ace.getMessage());
+            logError(ace);
         } catch (Exception ace) {
             LOGGER.warn("Error Message: {}", ace.getMessage());
         }
         return s3ObjectList;
     }
 
-    public S3Object getS3Object(String bucket, String key) {
-        S3Object s3object = null;
+    public InputStream getS3Object(String bucket, String key) {
+        InputStream stream = null;
         try {
-            s3object = s3Client.getObject(new GetObjectRequest(
+            S3Object s3object = s3Client.getObject(new GetObjectRequest(
                     bucket, key));
+            if (s3object != null) {
+                return s3object.getObjectContent();
+            }
         } catch (AmazonServiceException ase) {
-            LOGGER.warn("Caught an AmazonServiceException, which means your request made it to Amazon S3, but was rejected with an error response for some reason.");
-            LOGGER.warn("Error Message: {}", ase.getMessage());
-            LOGGER.warn("HTTP Status Code: {}", ase.getStatusCode());
-            LOGGER.warn("AWS Error Code: {}", ase.getErrorCode());
-            LOGGER.warn("Error Type: {}", ase.getErrorType());
-            LOGGER.warn("Request ID: {}", ase.getRequestId());
+            logError(ase);
         } catch (AmazonClientException ace) {
-            LOGGER.warn("Caught an AmazonClientException, which means the client encountered an internal error while trying to communicate with S3, such as not being able to access the network.");
-            LOGGER.warn("Error Message: {}", ace.getMessage());
+            logError(ace);
         }
-        return s3object;
+        return stream;
     }
 
-    public InputStream getS3ObjectFile(String bucket, String key) {
-        return getS3Object(bucket, key).getObjectContent();
-    }
-
-    public void putS3ObjectFile(String bucket, String key, InputStream input, Map<String, String> userMetaData) {
-        TransferManager tm = TransferManagerBuilder.defaultTransferManager();
-        ObjectMetadata metadata = new ObjectMetadata();
-        metadata.setUserMetadata(userMetaData);
-        PutObjectRequest request = new PutObjectRequest(bucket, key, input, metadata);
-        Upload upload = tm.upload(request);
+    public Map<String, String> getS3ObjectMetadata(String bucket, String key) {
+        Map<String, String> metadata = null;
         try {
-            upload.waitForCompletion();
-        } catch (AmazonClientException | InterruptedException amazonClientException) {
-            LOGGER.error("Unable to upload file, upload aborted.");
-            amazonClientException.printStackTrace();
+            S3Object s3object = s3Client.getObject(new GetObjectRequest(
+                    bucket, key));
+            if (s3object != null) {
+                return s3object.getObjectMetadata().getUserMetadata();
+            }
+        } catch (AmazonServiceException ase) {
+            logError(ase);
+        } catch (AmazonClientException ace) {
+            logError(ace);
         }
+        return metadata;
+    }
+
+    public void uploadS3ObjectMultipart(String bucket, String key, InputStream input, Map<String, String> userMetaData) {
+        try {
+            TransferManager tm = TransferManagerBuilder.defaultTransferManager();
+            byte[] bytes = IOUtils.toByteArray(input);
+            ObjectMetadata metadata = new ObjectMetadata();
+            metadata.setContentLength(bytes.length);
+            metadata.setUserMetadata(userMetaData);
+            ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(bytes);
+            PutObjectRequest request = new PutObjectRequest(bucket, key, byteArrayInputStream, metadata);
+            Upload upload = tm.upload(request);
+            upload.waitForCompletion();
+        } catch (AmazonClientException ace) {
+            logError(ace);
+        } catch (IOException e) {
+            LOGGER.debug("Upload fail: {}", e);
+        } catch (InterruptedException e) {
+            LOGGER.debug("Upload fail: {}", e);
+        }
+    }
+
+    public void uploadS3ObjectSingleOperation(String bucket, String key, InputStream input, Map<String, String> userMetaData) {
+        try {
+            LOGGER.debug("Uploading a new object to S3");
+            byte[] bytes = IOUtils.toByteArray(input);
+            ObjectMetadata metadata = new ObjectMetadata();
+            metadata.setContentLength(bytes.length);
+            metadata.setUserMetadata(userMetaData);
+            ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(bytes);
+            PutObjectRequest request = new PutObjectRequest(bucket, key, byteArrayInputStream, metadata);
+            s3Client.putObject(request);
+        } catch (AmazonServiceException ase) {
+            logError(ase);
+        } catch (AmazonClientException ace) {
+            logError(ace);
+        } catch (IOException e) {
+            LOGGER.debug("Upload fail: {}", e);
+        }
+    }
+
+    /**
+     * Note: We must explicitly specify all the user configurable metadata,
+     * even if we are only changing only one of the metadata values.
+     * http://docs.aws.amazon.com/AmazonS3/latest/dev/CopyingObjectsExamples.html
+     * 
+     * @param bucket
+     * @param key
+     * @param userMetaData
+     */
+    public void updateS3ObjectMetadata(String bucket, String key, Map<String, String> userMetaData) {
+        try {
+            LOGGER.debug("Update metadata for object: {}", key);
+            ObjectMetadata metadata = new ObjectMetadata();
+            metadata.setUserMetadata(userMetaData);
+            CopyObjectRequest request = new CopyObjectRequest(bucket, key, bucket, key)
+                    .withNewObjectMetadata(metadata);
+            s3Client.copyObject(request);
+        } catch (AmazonServiceException ase) {
+            logError(ase);
+        } catch (AmazonClientException ace) {
+            logError(ace);
+        }
+    }
+
+    public void deleteS3Object(String bucket, String key) {
+        try {
+            s3Client.deleteObject(new DeleteObjectRequest(bucket, key));
+        } catch (AmazonServiceException ase) {
+            logError(ase);
+        } catch (AmazonClientException ace) {
+            logError(ace);
+        }
+    }
+
+    public void logError(AmazonServiceException ase) {
+        LOGGER.debug("Caught an AmazonServiceException, which means your request made it to Amazon S3, but was rejected with an error response for some reason.");
+        LOGGER.debug("Error Message: {}", ase.getMessage());
+        LOGGER.debug("HTTP Status Code: {}", ase.getStatusCode());
+        LOGGER.debug("AWS Error Code: {}", ase.getErrorCode());
+        LOGGER.debug("Error Type: {}", ase.getErrorType());
+        LOGGER.debug("Request ID: {}", ase.getRequestId());
+    }
+
+    public void logError(AmazonClientException ace) {
+        LOGGER.debug("Caught an AmazonClientException, which means the client encountered an internal error while trying to communicate with S3, such as not being able to access the network.");
+        LOGGER.debug("Error Message: {}", ace.getMessage());
     }
 }
