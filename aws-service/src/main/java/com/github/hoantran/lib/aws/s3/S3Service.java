@@ -4,7 +4,7 @@
  * Any modifications to this file must keep this entire header intact.
  *
  */
-package com.hoantran.s3;
+package com.github.hoantran.lib.aws.s3;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -207,9 +207,9 @@ public class S3Service {
      * even if we are only changing only one of the metadata values.
      * http://docs.aws.amazon.com/AmazonS3/latest/dev/CopyingObjectsExamples.html
      * 
-     * @param bucket
-     * @param key
-     * @param userMetaData
+     * @param bucket S3 bucket
+     * @param key S3 object key
+     * @param userMetaData S3 object metadata
      */
     public void updateS3ObjectMetadata(String bucket, String key, Map<String, String> userMetaData) {
         try {

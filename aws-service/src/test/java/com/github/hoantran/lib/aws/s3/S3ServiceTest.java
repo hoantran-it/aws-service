@@ -4,7 +4,7 @@
  * Any modifications to this file must keep this entire header intact.
  *
  */
-package com.hoantran.s3;
+package com.github.hoantran.lib.aws.s3;
 
 import static org.junit.Assert.assertEquals;
 
@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.util.IOUtils;
+import com.github.hoantran.lib.aws.s3.S3Service;
 
 /**
  * @author hoan.tran
@@ -86,7 +87,7 @@ public class S3ServiceTest {
 
     @Test
     public void test_04_updateS3ObjectMetadata() {
-        Map<String, String> userMetaData = new HashMap<>();
+        Map<String, String> userMetaData = new HashMap<String, String>();
         userMetaData.put(metaDataKey, metaDataValue);
         s3Service.updateS3ObjectMetadata(bucketName, objectKey, userMetaData);
     }
