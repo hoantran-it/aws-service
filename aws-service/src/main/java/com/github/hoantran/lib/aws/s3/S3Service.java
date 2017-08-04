@@ -126,7 +126,7 @@ public class S3Service {
         } catch (AmazonClientException ace) {
             logError(ace);
         } catch (Exception ace) {
-            LOGGER.warn("Error Message: {}", ace.getMessage());
+            LOGGER.error("Error Message: {}", ace.getMessage());
         }
         return s3ObjectList;
     }
@@ -177,9 +177,9 @@ public class S3Service {
         } catch (AmazonClientException ace) {
             logError(ace);
         } catch (IOException e) {
-            LOGGER.debug("Upload fail: {}", e);
+            LOGGER.error("Upload fail: {}", e);
         } catch (InterruptedException e) {
-            LOGGER.debug("Upload fail: {}", e);
+            LOGGER.error("Upload fail: {}", e);
         }
     }
 
@@ -198,7 +198,7 @@ public class S3Service {
         } catch (AmazonClientException ace) {
             logError(ace);
         } catch (IOException e) {
-            LOGGER.debug("Upload fail: {}", e);
+            LOGGER.error("Upload fail: {}", e);
         }
     }
 
@@ -237,16 +237,16 @@ public class S3Service {
     }
 
     public void logError(AmazonServiceException ase) {
-        LOGGER.debug("Caught an AmazonServiceException, which means your request made it to Amazon S3, but was rejected with an error response for some reason.");
-        LOGGER.debug("Error Message: {}", ase.getMessage());
-        LOGGER.debug("HTTP Status Code: {}", ase.getStatusCode());
-        LOGGER.debug("AWS Error Code: {}", ase.getErrorCode());
-        LOGGER.debug("Error Type: {}", ase.getErrorType());
-        LOGGER.debug("Request ID: {}", ase.getRequestId());
+        LOGGER.error("Caught an AmazonServiceException, which means your request made it to Amazon S3, but was rejected with an error response for some reason.");
+        LOGGER.error("Error Message: {}", ase.getMessage());
+        LOGGER.error("HTTP Status Code: {}", ase.getStatusCode());
+        LOGGER.error("AWS Error Code: {}", ase.getErrorCode());
+        LOGGER.error("Error Type: {}", ase.getErrorType());
+        LOGGER.error("Request ID: {}", ase.getRequestId());
     }
 
     public void logError(AmazonClientException ace) {
-        LOGGER.debug("Caught an AmazonClientException, which means the client encountered an internal error while trying to communicate with S3, such as not being able to access the network.");
-        LOGGER.debug("Error Message: {}", ace.getMessage());
+        LOGGER.error("Caught an AmazonClientException, which means the client encountered an internal error while trying to communicate with S3, such as not being able to access the network.");
+        LOGGER.error("Error Message: {}", ace.getMessage());
     }
 }
