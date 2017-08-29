@@ -3,7 +3,7 @@
 
     <groupId>com.github.hoantran-it.library</groupId>
     <artifactId>aws-service</artifactId>
-    <version>1.1</version>
+    <version>1.1.1</version>
     <packaging>jar</packaging>
 
     <name>aws-service</name>
