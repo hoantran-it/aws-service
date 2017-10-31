@@ -44,7 +44,6 @@ public class SESService {
                             .withSubject(new Content()
                                     .withCharset("UTF-8").withData(subject)));
             client.sendEmail(request);
-            LOGGER.info("Email sent!");
             return true;
         } catch (Exception ex) {
             LOGGER.error("The email was not sent. Error message: {}", ex.getMessage());
