@@ -28,11 +28,11 @@ public class SESService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SESService.class);
 
-    public boolean sendMail(String fromEmail, String toEmail, String subject, String htmlBody, String textBody) throws IOException {
+    public boolean sendMail(String region, String fromEmail, String toEmail, String subject, String htmlBody, String textBody) throws IOException {
         try {
             AmazonSimpleEmailService client =
                     AmazonSimpleEmailServiceClientBuilder.standard()
-                            .withRegion(Regions.US_WEST_2).build();
+                            .withRegion(region).build();
             SendEmailRequest request = new SendEmailRequest()
                     .withSource(fromEmail)
                     .withDestination(new Destination().withToAddresses(toEmail))
@@ -52,11 +52,11 @@ public class SESService {
         }
     }
 
-    public boolean sendMail(String fromEmail, Collection<String> toEmails, String subject, String htmlBody, String textBody) throws IOException {
+    public boolean sendMail(String region, String fromEmail, Collection<String> toEmails, String subject, String htmlBody, String textBody) throws IOException {
         try {
             AmazonSimpleEmailService client =
                     AmazonSimpleEmailServiceClientBuilder.standard()
-                            .withRegion(Regions.US_WEST_2).build();
+                            .withRegion(region).build();
             SendEmailRequest request = new SendEmailRequest()
                     .withSource(fromEmail)
                     .withDestination(new Destination().withToAddresses(toEmails))

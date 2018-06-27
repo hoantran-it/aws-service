@@ -15,6 +15,8 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
+import com.amazonaws.regions.Regions;
+
 /**
  * @author hoan.tran
  */
@@ -44,7 +46,7 @@ public class SESServiceTest {
 
     @Test
     public void test_01_sendMail() throws IOException {
-        assertTrue(sesService.sendMail(FROM, TO, SUBJECT, HTMLBODY, TEXTBODY));
+        assertTrue(sesService.sendMail(Regions.US_WEST_2.toString(), FROM, TO, SUBJECT, HTMLBODY, TEXTBODY));
     }
 
 }
