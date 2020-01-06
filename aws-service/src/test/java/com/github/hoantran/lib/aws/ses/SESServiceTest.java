@@ -4,7 +4,7 @@
  * Any modifications to this file must keep this entire header intact.
  *
  */
-package com.github.hoantran.lib.aws.s3;
+package com.github.hoantran.lib.aws.ses;
 
 import static org.junit.Assert.assertTrue;
 
@@ -16,6 +16,7 @@ import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
 import com.amazonaws.regions.Regions;
+import com.github.hoantran.lib.aws.ses.SESService;
 
 /**
  * @author hoan.tran

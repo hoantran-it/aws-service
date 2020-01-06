@@ -4,7 +4,7 @@
  * Any modifications to this file must keep this entire header intact.
  *
  */
-package com.github.hoantran.lib.aws.s3;
+package com.github.hoantran.lib.aws.sns;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -25,16 +25,17 @@ public class SNSService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SNSService.class);
 
+    private static final String NAME = "AWS.SNS";
+
     private AmazonSNS snsClient;
 
     public SNSService() {
         this.snsClient = AmazonSNSClientBuilder.defaultClient();
     }
 
-    public boolean sendSMS(String phoneNumber, String message) {
+    public ResponseDTO sendSMS(String phoneNumber, String message) {
         try {
-            Map<String, MessageAttributeValue> smsAttributes =
-                    new HashMap<String, MessageAttributeValue>();
+            Map<String, MessageAttributeValue> smsAttributes = new HashMap<String, MessageAttributeValue>();
             smsAttributes.put("AWS.SNS.SMS.MaxPrice", new MessageAttributeValue()
                     .withStringValue("0.50") // Sets the max price to 0.50 USD.
                     .withDataType("Number"));
@@ -48,10 +49,10 @@ public class SNSService {
                     .withMessageAttributes(smsAttributes));
 
             LOGGER.info("The SMS was sent. Message: {}", result);
-            return true;
+            return new ResponseDTO(true, NAME, result.toString());
         } catch (Exception ex) {
             LOGGER.error("The SMS was not sent. Error message: {}", ex.getMessage());
-            return false;
+            return new ResponseDTO(false, NAME, ex.toString());
         }
     }
 

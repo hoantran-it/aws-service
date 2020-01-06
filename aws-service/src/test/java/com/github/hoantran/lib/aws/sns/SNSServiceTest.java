@@ -4,7 +4,7 @@
  * Any modifications to this file must keep this entire header intact.
  *
  */
-package com.github.hoantran.lib.aws.s3;
+package com.github.hoantran.lib.aws.sns;
 
 import java.io.IOException;
 
@@ -12,6 +12,8 @@ import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
+
+import com.github.hoantran.lib.aws.sns.SNSService;
 
 /**
  * @author hoan.tran
