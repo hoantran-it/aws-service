@@ -17,6 +17,7 @@ import com.amazonaws.services.sns.AmazonSNSClientBuilder;
 import com.amazonaws.services.sns.model.MessageAttributeValue;
 import com.amazonaws.services.sns.model.PublishRequest;
 import com.amazonaws.services.sns.model.PublishResult;
+import com.github.hoantran.lib.utility.dto.ServiceResponseDTO;
 
 /**
  * @author hoan.tran
@@ -33,7 +34,7 @@ public class SNSService {
         this.snsClient = AmazonSNSClientBuilder.defaultClient();
     }
 
-    public ResponseDTO sendSMS(String phoneNumber, String message) {
+    public ServiceResponseDTO sendSMS(String phoneNumber, String message) {
         try {
             Map<String, MessageAttributeValue> smsAttributes = new HashMap<String, MessageAttributeValue>();
             smsAttributes.put("AWS.SNS.SMS.MaxPrice", new MessageAttributeValue()
@@ -49,10 +50,10 @@ public class SNSService {
                     .withMessageAttributes(smsAttributes));
 
             LOGGER.info("The SMS was sent. Message: {}", result);
-            return new ResponseDTO(true, NAME, result.toString());
+            return new ServiceResponseDTO(true, NAME, result.toString());
         } catch (Exception ex) {
             LOGGER.error("The SMS was not sent. Error message: {}", ex.getMessage());
-            return new ResponseDTO(false, NAME, ex.toString());
+            return new ServiceResponseDTO(false, NAME, ex.toString());
         }
     }
 
