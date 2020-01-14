@@ -50,7 +50,7 @@ public class SESService {
             return new ServiceResponseDTO(true, NAME, result.toString());
         } catch (Exception ex) {
             LOGGER.error("The email was not sent. Error message: {}", ex.getMessage());
-            return new ServiceResponseDTO(true, NAME, ex.toString());
+            return new ServiceResponseDTO(false, NAME, ex.toString());
         }
     }
 
@@ -73,7 +73,7 @@ public class SESService {
             return new ServiceResponseDTO(true, NAME, result.toString());
         } catch (Exception ex) {
             LOGGER.error("The email was not sent. Error message: {}", ex.getMessage());
-            return new ServiceResponseDTO(true, NAME, ex.toString());
+            return new ServiceResponseDTO(false, NAME, ex.toString());
         }
     }
 
