@@ -49,10 +49,22 @@ public class SNSService {
                     .withPhoneNumber(phoneNumber)
                     .withMessageAttributes(smsAttributes));
 
-            LOGGER.info("The SMS was sent. Message: {}", result);
+            LOGGER.info("The SMS was sent. Result: {}", result);
             return new ServiceResponseDTO(true, NAME, result.toString());
         } catch (Exception ex) {
             LOGGER.error("The SMS was not sent. Error message: {}", ex.getMessage());
+            return new ServiceResponseDTO(false, NAME, ex.toString());
+        }
+    }
+
+    public ServiceResponseDTO sendNotification(String topicArn, String message) {
+        try {
+            final PublishRequest publishRequest = new PublishRequest(topicArn, message);
+            final PublishResult result = snsClient.publish(publishRequest);
+            LOGGER.info("The notification was sent. Result: {}", result);
+            return new ServiceResponseDTO(true, NAME, result.toString());
+        } catch (Exception ex) {
+            LOGGER.error("The notification was not sent. Error message: {}", ex.getMessage());
             return new ServiceResponseDTO(false, NAME, ex.toString());
         }
     }

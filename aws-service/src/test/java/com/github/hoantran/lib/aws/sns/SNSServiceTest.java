@@ -13,8 +13,6 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
-import com.github.hoantran.lib.aws.sns.SNSService;
-
 /**
  * @author hoan.tran
  */
@@ -29,8 +27,15 @@ public class SNSServiceTest {
     }
 
     @Test
-    public void test_01_sendSMS() throws IOException {
+    public void test_01_sendMessage() throws IOException {
         snsService.sendSMS("+84999999999", "Hello world!!!");
+    }
+
+    @Test
+    public void test_01_sendNotification() throws IOException {
+        String topicArn = "topicArn";
+        String message = "Hello world!!!";
+        snsService.sendNotification(topicArn, message);
     }
 
 }
