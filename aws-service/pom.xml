@@ -99,7 +99,7 @@
 
     <properties>
         <java.version>1.8</java.version>
-        <junit-version>4.11</junit-version>
+        <junit-version>4.13.1</junit-version>
         <org.slf4j-version>1.7.7</org.slf4j-version>
         <logback-version>1.1.2</logback-version>
         <commons-lang-version>2.6</commons-lang-version>
